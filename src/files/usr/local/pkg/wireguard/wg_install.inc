@@ -403,33 +403,36 @@ function wg_earlyshellcmd_deinstall() {
 
 	$shellcmd_pkg_cmds = array_map(fn($x) => $x['cmd'], $a_shellcmdsettings);
 
-	foreach ($wgg['shellcmdsettings'] as $shellcmd) {
+	if (is_array($wgg['shellcmdsettings'])){
 
-		// Need to escape slashes from the path
-		$escaped_cmd = preg_quote($shellcmd['cmd'], '/');
+		foreach ($wgg['shellcmdsettings'] as $shellcmd) {
 
-		// Deinstall the earlyshellcmd
-		if ($cmds = preg_grep("/{$escaped_cmd}/", $a_earlyshellcmd)) {
+			// Need to escape slashes from the path
+			$escaped_cmd = preg_quote($shellcmd['cmd'], '/');
 
-			foreach ($cmds as $cmd_idx => $cmd) {
+			// Deinstall the earlyshellcmd
+			if ($cmds = preg_grep("/{$escaped_cmd}/", $a_earlyshellcmd)) {
 
-				unset($a_earlyshellcmd[$cmd_idx]);
+				foreach ($cmds as $cmd_idx => $cmd) {
+
+					unset($a_earlyshellcmd[$cmd_idx]);
+
+				}
+
+			}
+
+			// Update the shellcmd package too
+			if ($cmds = preg_grep("/{$escaped_cmd}/", $shellcmd_pkg_cmds)) {
+
+				foreach ($cmds as $cmd_idx => $cmd) {
+
+					unset($a_shellcmdsettings[$cmd_idx]);
+
+				}
 
 			}
 
 		}
-
-		// Update the shellcmd package too
-		if ($cmds = preg_grep("/{$escaped_cmd}/", $shellcmd_pkg_cmds)) {
-
-			foreach ($cmds as $cmd_idx => $cmd) {
-
-				unset($a_shellcmdsettings[$cmd_idx]);
-
-			}
-
-		}
-
 	}
 
 	write_config("[WireGuard] earlyshellcmd(s) de-installed.");
